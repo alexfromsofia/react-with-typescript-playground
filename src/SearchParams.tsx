@@ -1,8 +1,8 @@
 import React from "react";
-import { navigate } from "@reach/router";
+import { navigate, RouteComponentProps } from "@reach/router";
 import SearchBox from "./SearchBox";
 
-class Search extends React.Component {
+class Search extends React.Component<RouteComponentProps> {
   search() {
     navigate("/");
   }

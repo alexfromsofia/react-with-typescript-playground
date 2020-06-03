@@ -1,23 +1,49 @@
 import React from "react";
-import pf from "petfinder-client";
-import { navigate } from "@reach/router";
+import pf, { PetResponse, PetMedia } from "petfinder-client";
+import { navigate, RouteComponentProps } from "@reach/router";
 import Carousel from "./Carousel";
 import Modal from "./Modal";
 
+// if (!process.env.API_KEY || !process.env.API_SECRET) {
+//   throw new Error("No API keys!");
+// }
 const petfinder = pf({
   key: process.env.API_KEY,
-  secret: process.env.API_SECRET
+  secret: process.env.API_SECRET,
 });
 
-class Details extends React.Component {
-  state = { loading: true, showModal: false };
-  componentDidMount() {
+export interface MediaPhoto {
+  "@size": string;
+  "@id": string;
+  value: string;
+}
+
+class Details extends React.Component<RouteComponentProps<{ id: string }>> {
+  public state = {
+    loading: true,
+    showModal: false,
+    name: "",
+    animal: "",
+    location: "",
+    description: "",
+    media: {} as PetMedia,
+    breed: "",
+  };
+
+  public componentDidMount() {
+    if (!this.props.id) return;
+
     petfinder.pet
       .get({
         output: "full",
-        id: this.props.id
+        id: this.props.id,
       })
-      .then(data => {
+      .then((data) => {
+        if (!data.petfinder.pet) {
+          navigate("/");
+          return;
+        }
+
         let breed;
         if (Array.isArray(data.petfinder.pet.breeds.breed)) {
           breed = data.petfinder.pet.breeds.breed.join(", ");
@@ -27,21 +53,20 @@ class Details extends React.Component {
         this.setState({
           name: data.petfinder.pet.name,
           animal: data.petfinder.pet.animal,
-          location: `${data.petfinder.pet.contact.city}, ${
-            data.petfinder.pet.contact.state
-          }`,
+          location: `${data.petfinder.pet.contact.city}, ${data.petfinder.pet.contact.state}`,
           description: data.petfinder.pet.description,
           media: data.petfinder.pet.media,
           breed,
-          loading: false
+          loading: false,
         });
       })
       .catch(() => {
         navigate("/");
       });
   }
-  toggleModal = () => this.setState({ showModal: !this.state.showModal });
-  render() {
+  public toggleModal = () =>
+    this.setState({ showModal: !this.state.showModal });
+  public render() {
     if (this.state.loading) {
       return <h1>loading … </h1>;
     }
@@ -53,7 +78,7 @@ class Details extends React.Component {
       location,
       description,
       name,
-      showModal
+      showModal,
     } = this.state;
 
     return (

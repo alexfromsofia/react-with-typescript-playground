@@ -7,13 +7,28 @@ import Details from "./Details";
 import SearchParams from "./SearchParams";
 import { Provider } from "./SearchContext";
 
+// if (!process.env.API_KEY || !process.env.API_SECRET) {
+//   throw new Error("No API keys!");
+// }
+
 const petfinder = pf({
   key: process.env.API_KEY,
-  secret: process.env.API_SECRET
+  secret: process.env.API_SECRET,
 });
 
-class App extends React.Component {
-  constructor(props) {
+interface State {
+  location: string;
+  animal: string;
+  breed: string;
+  breeds: string[];
+  handleAnimalChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleBreedChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleLocationChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  getBreeds: () => void;
+}
+
+class App extends React.Component<{}, State> {
+  constructor(props: {}) {
     super(props);
 
     this.state = {
@@ -24,39 +39,39 @@ class App extends React.Component {
       handleAnimalChange: this.handleAnimalChange,
       handleBreedChange: this.handleBreedChange,
       handleLocationChange: this.handleLocationChange,
-      getBreeds: this.getBreeds
+      getBreeds: this.getBreeds,
     };
   }
-  handleLocationChange = event => {
+  handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      location: event.target.value
+      location: event.target.value,
     });
   };
-  handleAnimalChange = event => {
+  handleAnimalChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     this.setState(
       {
-        animal: event.target.value
+        animal: event.target.value,
       },
       this.getBreeds
     );
   };
-  handleBreedChange = event => {
+  handleBreedChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     this.setState({
-      breed: event.target.value
+      breed: event.target.value,
     });
   };
   getBreeds() {
     if (this.state.animal) {
       petfinder.breed
         .list({ animal: this.state.animal })
-        .then(data => {
+        .then((data) => {
           if (
             data.petfinder &&
             data.petfinder.breeds &&
             Array.isArray(data.petfinder.breeds.breed)
           ) {
             this.setState({
-              breeds: data.petfinder.breeds.breed
+              breeds: data.petfinder.breeds.breed,
             });
           } else {
             this.setState({ breeds: [] });
@@ -65,7 +80,7 @@ class App extends React.Component {
         .catch(console.error);
     } else {
       this.setState({
-        breeds: []
+        breeds: [],
       });
     }
   }

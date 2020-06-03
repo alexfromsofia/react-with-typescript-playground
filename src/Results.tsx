@@ -1,20 +1,37 @@
 import React from "react";
-import pf from "petfinder-client";
+import pf, { Pet as PetType } from "petfinder-client";
 import Pet from "./Pet";
 import SearchBox from "./SearchBox";
 import { Consumer } from "./SearchContext";
+import { RouteComponentProps } from "@reach/router";
+
+// if (!process.env.API_KEY || !process.env.API_SECRET) {
+//   throw new Error("No API keys!");
+// }
 
 const petfinder = pf({
   key: process.env.API_KEY,
-  secret: process.env.API_SECRET
+  secret: process.env.API_SECRET,
 });
 
-class Results extends React.Component {
-  constructor(props) {
+interface Props {
+  searchParams: {
+    location: string;
+    animal: string;
+    breed: string;
+  };
+}
+
+interface State {
+  pets: PetType[];
+}
+
+class Results extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      pets: []
+      pets: [],
     };
   }
   componentDidMount() {
@@ -26,10 +43,10 @@ class Results extends React.Component {
         location: this.props.searchParams.location,
         animal: this.props.searchParams.animal,
         breed: this.props.searchParams.breed,
-        output: "full"
+        output: "full",
       })
-      .then(data => {
-        let pets;
+      .then((data) => {
+        let pets: PetType[];
         if (data.petfinder.pets && data.petfinder.pets.pet) {
           if (Array.isArray(data.petfinder.pets.pet)) {
             pets = data.petfinder.pets.pet;
@@ -39,16 +56,15 @@ class Results extends React.Component {
         } else {
           pets = [];
         }
-        this.setState({
-          pets: pets
-        });
+        this.setState({ pets });
+        console.log(pets);
       });
   };
   render() {
     return (
       <div className="search">
         <SearchBox search={this.search} />
-        {this.state.pets.map(pet => {
+        {this.state.pets.map((pet) => {
           let breed;
           if (Array.isArray(pet.breeds.breed)) {
             breed = pet.breeds.breed.join(", ");
@@ -72,10 +88,10 @@ class Results extends React.Component {
   }
 }
 
-export default function ResultsWithContext(props) {
+export default function ResultsWithContext(props: RouteComponentProps) {
   return (
     <Consumer>
-      {context => <Results {...props} searchParams={context} />}
+      {(context) => <Results {...props} searchParams={context} />}
     </Consumer>
   );
 }

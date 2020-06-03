@@ -2,15 +2,19 @@ import React from "react";
 import { ANIMALS } from "petfinder-client";
 import { Consumer } from "./SearchContext";
 
-class Search extends React.Component {
-  handleFormSubmit = event => {
+interface Props {
+  search: () => void;
+}
+
+class Search extends React.Component<Props> {
+  public handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.props.search();
   };
-  render() {
+  public render() {
     return (
       <Consumer>
-        {context => (
+        {(context) => (
           <div className="search-params">
             <form onSubmit={this.handleFormSubmit}>
               <label htmlFor="location">
@@ -31,7 +35,7 @@ class Search extends React.Component {
                   onBlur={context.handleAnimalChange}
                 >
                   <option />
-                  {ANIMALS.map(animal => (
+                  {ANIMALS.map((animal) => (
                     <option key={animal} value={animal}>
                       {animal}
                     </option>
@@ -48,7 +52,7 @@ class Search extends React.Component {
                   onBlur={context.handleBreedChange}
                 >
                   <option />
-                  {context.breeds.map(breed => (
+                  {context.breeds.map((breed) => (
                     <option key={breed} value={breed}>
                       {breed}
                     </option>
